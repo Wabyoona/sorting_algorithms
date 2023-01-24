@@ -1,100 +1,85 @@
 #include "sort.h"
 
+void merge_subarr(int *subarr, int *buff, size_t front, size_t mid,
+				size_t back);
+void merge_sort_recursive(int *subarr, int *buff, size_t front, size_t back);
+void merge_sort(int *array, size_t size);
+
 /**
- * print_parse - prints the value in array
- *
- * @array: array to be printed
- * @text: text to  printed alongside values
- * @low: lower bound
- * @high: upper bound
+ * merge_subarr - Sort a subarray of integers.
+ * @subarr: A subarray of an array of integers to sort.
+ * @buff: A buffer to store the sorted subarray.
+ * @front: The front index of the array.
+ * @mid: The middle index of the array.
+ * @back: The back index of the array.
  */
-void print_parse(int *array, const char *text, size_t low, size_t high)
+
+void merge_subarr(int *subarr, int *buff, size_t front, size_t mid,
+				size_t back)
 {
-	size_t i;
-	char *separator = "";
+	size_t i, j, k = 0;
 
-	printf("[%s]: ", text);
-	for (i = low; i <= high; i++)
-	{
-		printf("%s%d", separator, array[i]);
-		separator = ", ";
-	}
-	printf("\n");
-}
-/**
- * join_parse - joins and sorts the values in the array
- * parsed
- *
- * @arr: array to be sorted
- * @low: starting index of the array passed
- * @high: ending index of the array passed
- * @mid: midpoint of the split array
- * @copy: array to store sorted values
- */
-void join_parse(int *arr, size_t low, size_t high, size_t mid, int *copy)
-{
-	size_t hStart = mid + 1, newIndex, lStart = low, i;
+	printf("Merging...\n[left]: ");
+	print_array(subarr + front, mid - front);
 
-	printf("Merging...\n");
-	print_parse(arr, "left", low, mid);
-	print_parse(arr, "right", mid + 1, high);
+	printf("[right]: ");
+	print_array(subarr + mid, back - mid);
 
-	for (newIndex = low; newIndex <= high; newIndex++)  /* fill sorted val */
-	{
-		if ((lStart <= mid && arr[lStart] <= arr[hStart]) || hStart > high)
-			copy[newIndex] = arr[lStart++];
-		else
-			copy[newIndex] = arr[hStart++];
-	}
+	for (i = front, j = mid; i < mid && j < back; k++)
+		buff[k] = (subarr[i] < subarr[j]) ? subarr[i++] : subarr[j++];
+	for (; i < mid; i++)
+		buff[k++] = subarr[i];
+	for (; j < back; j++)
+		buff[k++] = subarr[j];
+	for (i = front, k = 0; i < back; i++)
+		subarr[i] = buff[k++];
 
-	for (i = low; i <= high; i++)   /* update initial array with sorted arr */
-		arr[i] = copy[i];
-
-	print_parse(arr, "Done", low, high);
+	printf("[Done]: ");
+	print_array(subarr + front, back - front);
 }
 
 /**
- * parser - recursively perform merge sort and sort the
- * given array
- *
- * @array: array to be sorted
- * @lb: lower bound
- * @ub: upper bound
- * @copy: array to store sorted values
+ * merge_sort_recursive - Implement the merge sort algorithm through recursion.
+ * @subarr: A subarray of an array of integers to sort.
+ * @buff: A buffer to store the sorted result.
+ * @front: The front index of the subarray.
+ * @back: The back index of the subarray.
  */
-void parser(int *array, size_t lb, size_t ub, int *copy)
+
+void merge_sort_recursive(int *subarr, int *buff, size_t front, size_t back)
 {
 	size_t mid;
 
-	if (lb < ub)
+	if (back - front > 1)
 	{
-		mid = (ub + lb - 1) / 2;
-
-		parser(array, lb, mid, copy);
-		parser(array, mid + 1, ub, copy);
-
-		join_parse(array, lb, ub, mid, copy);
+		mid = front + (back - front) / 2;
+		merge_sort_recursive(subarr, buff, front, mid);
+		merge_sort_recursive(subarr, buff, mid, back);
+		merge_subarr(subarr, buff, front, mid, back);
 	}
 }
 
 /**
- * merge_sort - application of the merge sort
- * algorithm to sort an array of integers
- *
- * @array: array to be sorted
- * @size: size of the array
+ * merge_sort - Sort an array of integers in ascending
+ *              order using the merge sort algorithm.
+ * @array: An array of integers.
+ * @size: The size of the array.
+ * Description: Implements the top-down merge sort algorithm.
  */
+
 void merge_sort(int *array, size_t size)
 {
-	int *clone;
+	int *buff;
 
-	if (!array || size < 2)   /* only one value or less in array */
+	if (array == NULL || size < 2)
 		return;
 
-	clone = malloc(sizeof(int) * size);
-	if (!clone)
+	buff = malloc(sizeof(int) * size);
+	if (buff == NULL)
 		return;
 
-	parser(array, 0, size - 1, clone);
-	free(clone);
+	merge_sort_recursive(array, buff, 0, size);
+
+	free(buff);
+
 }
