@@ -68,5 +68,5 @@ Write a function that sorts a deck of cards.
 
 Author 
 
-Kenneth waisswa 
+Kenneth Waiswa 
 Wabyoona Peter
